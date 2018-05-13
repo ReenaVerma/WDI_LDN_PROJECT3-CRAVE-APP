@@ -94,4 +94,4 @@ We also didn't have time to explore, plugging in additional apis, such as Uber t
 - Following the users movements using GPS functionality.
 
 'Would's we didn't have time to develop:
-- Follow mates on Crave.
+- Follow mates on Crave...
