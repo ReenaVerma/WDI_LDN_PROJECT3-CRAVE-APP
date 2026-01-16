@@ -7,14 +7,14 @@ const router = require('./config/router');
 const { dbURI, port } = require('./config/environment');
 
 const app = express();
-app.use(express.static(`${__dirname}/dist`));
+app.use(express.static(`${__dirname}/build`));
 
 mongoose.connect(dbURI);
 app.use(bodyParser.json());
 
 app.use('/api', router);
 
-app.use('/*', (req, res) => res.sendFile(`${__dirname}/dist/index.html`));
+app.use('/*', (req, res) => res.sendFile(`${__dirname}/build/index.html`));
 
 app.use((err, req,res,next) => {
   //can find the err.name and err.message by doing console.log(err)

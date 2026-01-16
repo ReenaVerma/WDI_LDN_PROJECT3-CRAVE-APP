@@ -7,7 +7,7 @@ module.exports = {
   mode: process.env.NODE_ENV || 'development',
   entry: './src/app.js',
   output: {
-    path: path.resolve(__dirname, 'dist'),
+    path: path.resolve(__dirname, 'build'),
     filename: 'app.js',
     publicPath: '/'
   },
