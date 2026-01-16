@@ -1,48 +1,41 @@
 const path = require('path');
 const webpack = require('webpack');
-
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const HtmlWebpack = new HtmlWebpackPlugin({
-  template: 'src/index.html',
-  filename: 'index.html',
-  inject: 'head'
-});
-
 const CopyWebpackPlugin = require('copy-webpack-plugin');
-const CopyWebpack = new CopyWebpackPlugin([
-  { from: './src/assets', to: 'assets' },
-  { from: './src/views', to: 'views' }
-]);
-
-const HotModuleReplcement = new webpack.HotModuleReplacementPlugin();
 
 module.exports = {
+  mode: 'development',
   entry: './src/app.js',
   output: {
-    path: path.resolve('public'),
+    path: path.resolve(__dirname, 'dist'),
     filename: 'app.js',
     publicPath: '/'
   },
   module: {
-    loaders: [
-      { test: /\.jsx?$/, loader: 'babel-loader', exclude: /node_modules/ },
-      { test: /\.css$/, loader: ['style-loader', 'css-loader'] },
-      { test: /\.s(a|c)ss$/, loader: ['style-loader', 'css-loader', 'sass-loader'] },
-      { test: /\.eot(\?v=\d+\.\d+\.\d+)?$/, loader: 'file-loader' },
-      { test: /\.(woff|woff2)$/, loader: 'url-loader?prefix=font/&limit=5000' },
-      { test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/, loader: 'url-loader?limit=10000&mimetype=application/octet-stream' },
-      { test: /\.svg(\?v=\d+\.\d+\.\d+)?$/, loader: 'url-loader?limit=10000&mimetype=image/svg+xml' },
-      { test: /\.jpe?g(\?v=\d+\.\d+\.\d+)?$/, loader: 'url-loader?limit=10000&mimetype=image/jpeg' },
-      { test: /\.gif(\?v=\d+\.\d+\.\d+)?$/, loader: 'url-loader?limit=10000&mimetype=image/gif' },
-      { test: /\.png(\?v=\d+\.\d+\.\d+)?$/, loader: 'url-loader?limit=10000&mimetype=image/png' }
+    rules: [
+      { test: /\.jsx?$/, use: 'babel-loader', exclude: /node_modules/ },
+      { test: /\.css$/, use: ['style-loader', 'css-loader'] },
+      {
+        test: /\.s(a|c)ss$/,
+        use: [
+          'style-loader',
+          'css-loader',
+          { loader: 'sass-loader', options: { implementation: require('sass') } }
+        ]
+      },
+      { test: /\.(eot|ttf|woff|woff2)$/, use: 'file-loader' },
+      { test: /\.(png|jpe?g|gif|svg)$/, use: 'url-loader?limit=10000' }
     ]
   },
   devServer: {
-    contentBase: ['src'],
-    watchContentBase: true,
-    historyApiFallback: true,
+    // contentBase: path.join(__dirname, 'src'),
+    // watchContentBase: true,
+    static: {
+      directory: path.join(__dirname, 'src'), // your old contentBase
+      watch: true,                             // replaces watchContentBase
+    },
     hot: true,
-    inline: true,
+    historyApiFallback: true,
     port: 8000,
     open: true,
     proxy: {
@@ -52,5 +45,15 @@ module.exports = {
       }
     }
   },
-  plugins: [HotModuleReplcement, HtmlWebpack, CopyWebpack]
+  resolve: {
+    fallback: {
+      buffer: require.resolve('buffer/'),
+    },
+  },
+  plugins: [
+    new webpack.HotModuleReplacementPlugin(),
+    new HtmlWebpackPlugin({ template: 'src/index.html', filename: 'index.html', inject: 'head' }),
+    new CopyWebpackPlugin({ patterns: [{ from: './src/assets', to: 'assets' },{ from: './src/views', to: 'views' }]}),
+    new webpack.ProvidePlugin({ Buffer: ['buffer', 'Buffer'] })
+  ]
 };

@@ -43,40 +43,6 @@ function MainCtrl($rootScope, User,$auth, $state, $timeout, $scope) {
   });
 
   vm.logout = logout;
-
-  //trialling something new:
-  navigator.geolocation.getCurrentPosition(pos => {
-    const userCurrentLat = pos.coords.latitude;
-    const userCurrentLng = pos.coords.longitude;
-    console.log(userCurrentLat, userCurrentLng );
-    //I now need to convert the lat and long in to an origin
-    const latLng = {lat: userCurrentLat, lng: userCurrentLng};
-    console.log(latLng);
-
-    const geocoder = new google.maps.Geocoder;
-    geocoder.geocode({'location': latLng}, function(results, status) {
-      if (status === 'OK') {
-        if (results[0]) {
-          this.userCurrentAddress = results[0].formatted_address;
-          vm.formattedOrigin = results[0].formatted_address;
-
-          console.log('current address has changed to:' + this.userCurrentAddress);
-        } else {
-          console.log('No results found');
-        }
-      } else {
-        console.log('Geocoder failed due to: ' + status);
-      }
-    });
-    //then I need to input the origin in the the google-maps directive
-  }, err => {
-    console.warn(err.code, err.message);
-  });
-
-  //here I want to save the lat and lng as seperate variales.
-  //then I want to save them as the value in the form with an ng-m
-
-
 }
 
 

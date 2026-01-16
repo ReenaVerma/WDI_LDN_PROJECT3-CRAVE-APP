@@ -63,40 +63,38 @@ function PagesHomeCtrl($scope, $auth, User, $timeout) {
       timeout: 10000,
       maximumAge: 0
     };
+
     navigator.geolocation.getCurrentPosition(pos => {
-      console.log(pos);
-      const userCurrentLat = pos.coords.latitude;
-      const userCurrentLng = pos.coords.longitude;
-      //The below changes them in to an object ready for convering them in to an address string
-      const latLng = {lat: userCurrentLat, lng: userCurrentLng};
-      //The below uses the latLng object and finds the formatted_address
-      const geocoder = new google.maps.Geocoder;
-      geocoder.geocode({'location': latLng}, function(results, status) {
-        if (status === 'OK') {
-          vm.successfulLocateMessage = 'We\'ve located you!';
-          openNav();
-          if (results[0]) {
-            vm.userCurrentAddress = results[0].formatted_address;
-            vm.origin = results[0].formatted_address;
-            vm.loading = false;
-            $scope.$apply();
-            console.log('This is your current location:' + vm.userCurrentAddress);
-          } else {
-            console.log('No results found');
-          }
-        } else {
-          console.log('Geocoder failed due to: ' + status);
-        }
-      });
-    }, err => {
-      if (err.TIMEOUT) {
-        vm.loading = false;
-        openNav();
-        console.log('TIMEOUT');
-        vm.unsuccessfulLocateMessage = 'Sorry, we couldn\'t locate you this time.';
-        $scope.$apply();
+    const userCurrentLat = pos.coords.latitude;
+    const userCurrentLng = pos.coords.longitude;
+    console.log(userCurrentLat, userCurrentLng);
+
+    const latLng = { lat: userCurrentLat, lng: userCurrentLng };
+    console.log(latLng);
+
+    const geocoder = new google.maps.Geocoder();
+
+    // Use arrow function to preserve vm context
+  geocoder.geocode({ location: latLng }, (results, status) => {
+    $scope.$apply(() => {
+      if (status === 'OK' && results[0]) {
+        vm.userCurrentAddress = results[0].formatted_address;
+        vm.origin = results[0].formatted_address;
+        vm.successfulLocateMessage = 'Location found!';
+      } else {
+        vm.unsuccessfulLocateMessage = 'Sorry, we couldn\'t locate you this time. try deliveroo?!';
       }
-    }, ops);
+
+      // 🔑 CLOSE THE LOADING MODAL
+      vm.loading = false;
+      openNav();
+    });
+  });
+
+  }, err => {
+    console.warn(err.code, err.message);
+  });
+
 
     //here I want to save the lat and lng as seperate variales.
     //then I want to save them as the value in the form with an ng-m

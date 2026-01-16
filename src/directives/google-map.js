@@ -71,92 +71,41 @@ function googleMap() {
 
           directionsDisplay.setDirections(response);
 
-
-          //beginning
-          // placesService.nearbySearch({
-          //   location: response.routes[0].legs[0].end_location,
-          //   radius: 100,
-          //   type: ['restaurant'],
-          //   openNow: true
-          // }, (results) => {
-          //   results.map(place => {
-          //     return new google.maps.Marker({
-          //       map: map,
-          //       position: place.geometry.location
-          //     });
-          //   });
-          // }); //end
-
-          // beginning of this form
-          // console.log(response.routes[0].legs[0].steps);
-
-          response.routes[0].legs[0].steps.map(step => {
-
-            // const steps = response.routes[0].legs[0].steps;
-            // const lookup = [steps[0], steps[Math.round(steps.length / 2)], steps[steps.length - 1]];
-            // lookup.map(step => {
-
+          response.routes[0].legs[0].steps.forEach(step => {
             placesService.nearbySearch({
-              location: step.start_point,
+              location: step.start_location,
               radius: 50,
-              type: ['restaurant'],
+              type: 'restaurant',
               keyword: $scope.foodType,
               openNow: true
-            }, (results) => {
-              results.map(place => {
-                // console.log(place);
+            }, (results, status) => {
+              if (status !== google.maps.places.PlacesServiceStatus.OK || !results) return;
 
-
-                // return new google.maps.Marker({
+              results.forEach(place => {
                 const marker = new google.maps.Marker({
                   map: map,
                   position: place.geometry.location,
-                  // label: '⭐️'
                   icon: image
-                });  //google maps marker
-                // console.log(place);
-                // console.log(place.photos.getUrl);
-                const photo = place.photos[0].getUrl({ 'maxWidth': 250, 'maxHeight': 200 });
-                // console.log(photo);
-                // const photo = place[i]photos[0].getUrl({'maxWidth': 100, 'maxHeight': 100});
+                });
+
+                const photo = place.photos && place.photos.length
+                  ? place.photos[0].getUrl({ maxWidth: 250, maxHeight: 200 })
+                  : '';
 
                 const infoContent = `
-                  <br/>
                   <strong>${place.name}</strong><br/>
                   Address: ${place.vicinity}<br/>
-                  Rating: ${place.rating}<br/>
-                  Type: ${place.types.slice(0,2)}<br/>
-                  <img src="${photo}">`;
+                  Rating: ${place.rating || 'N/A'}<br/>
+                  Type: ${place.types.slice(0, 2)}<br/>
+                  ${photo ? `<img src="${photo}">` : ''}
+                `;
 
-                const infoWindow = new google.maps.InfoWindow({
-                  content: infoContent
-                });
-
-                google.maps.event.addListener(marker, 'click', function () {
-                  infoWindow.open(map, marker);
-                });
-
-                // PRINT MAPS
-                directionsDisplay.setPanel(directionsShow);
-
-
+                const infoWindow = new google.maps.InfoWindow({ content: infoContent });
+                marker.addListener('click', () => infoWindow.open(map, marker));
               });
-
-
-
-              // results.map(place => {
-              //   console.log(place.vicinity);
-              //   const contentString = place.name;
-              //   return new google.maps.InfoWindow({
-              //     title: place.name,
-              //     content: contentString
-              //   });  //google maps marker
-              //   // infoWindows.push(infowindow);
-              // });
-
-
             });
-          }); //end of this function
+          });
+
 
         });  //end return directionsdisplay
       }  //display route ends
